@@ -8,6 +8,11 @@ class PalettesController < ApplicationController
             :except => [:created_at, :updated_at]
     end
 
+    def create
+        palette = Palette.new_from_hash(palette_params)
+        render json: {message: "#{p.name} Saved!"}
+    end
+
     private
 
     def palette_params()
