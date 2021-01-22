@@ -7,5 +7,11 @@ class PalettesController < ApplicationController
             },
             :except => [:created_at, :updated_at]
     end
+
+    private
+
+    def palette_params()
+        params.require(:palette).permit(:name, :color_ids => [])
+    end
         
 end
