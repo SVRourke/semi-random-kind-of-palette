@@ -7,7 +7,9 @@ Rails.application.routes.draw do
 
   # Route for all palettes
   GET '/api/palettes', to: 'palettes#index'
-  
+
+  # Route to create a new palette
+  POST '/api/palettes', to: 'palettes#create'
 
 
 end
