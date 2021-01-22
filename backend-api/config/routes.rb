@@ -1,15 +1,15 @@
 Rails.application.routes.draw do
   
   # Route for all colors
-  GET '/api/colors', to: 'colors#index'
+  get '/api/colors', to: 'colors#index'
   # Route for N random colors
-  GET '/api/:n/colors', to: 'colors#nRandom'
+  get '/api/:n/colors', to: 'colors#nRandom'
 
   # Route for all palettes
-  GET '/api/palettes', to: 'palettes#index'
+  get '/api/palettes', to: 'palettes#index'
 
   # Route to create a new palette
-  POST '/api/palettes', to: 'palettes#create'
+  post '/api/palettes', to: 'palettes#create'
 
 
 end
