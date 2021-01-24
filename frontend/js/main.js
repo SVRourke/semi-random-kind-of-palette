@@ -1,9 +1,6 @@
 function newElem(tag, names) {
     let e = document.createElement(tag);
-
-    if (names) {
-        for(const name of names) {e.classList.add(name)}
-    }
+    if (names) { for(const name of names) {e.classList.add(name)}}
     return e
 }
 
@@ -54,8 +51,13 @@ function createColumn(color) {
     return div
 }
 
+function getColor(cb) {
+    fetch("http://localhost:3000/api/colors?count=1")
+    .then(r => r.json())
+    .then(d => cb(d[0]))
+    .catch(e => alert("Network Error Try Again"))
+}
 
-// mainColorsContainer.appendChild(createColumn({id: 76, name: "blah", hex: "#655044"}))
 
 let mainColorsContainer = document.querySelector(".palette_row");
 
@@ -69,16 +71,30 @@ document.addEventListener("DOMContentLoaded", () => {
     .catch(e => console.log(e));
 
     for (let i = 0; i < 5; i++) {
-        fetch("http://localhost:3000/api/colors?count=1")
-        .then(r => r.json())
-        .then((d) => {
-            mainColorsContainer.appendChild(createColumn(d[0]))
-        })
+        getColor(c => mainColorsContainer.appendChild(createColumn(c)))
+    }
+
+
+    document.body.onkeyup = function(e){
+        if(e.keyCode == 32){
+            console.log("pressed")
+            for (const col of mainColorsContainer.children) {
+                if (col.dataset.colorUnlocked == "true") {
+                    getColor((c) => {
+                        console.log(c)
+                        updateColor(col, c)
+                    })
+                }
+            }
+        }
     }
 });
 
 
-
+function updateColor(element, color) {
+    element.setAttribute("data-color_id", color.id);
+    element.style.backgroundColor = color.hex;
+}
 
 
 
