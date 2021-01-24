@@ -1,0 +1,111 @@
+:root {
+    --color-1: #eee600;
+    --color-2: #8e3a59;
+    --color-3: #766ec8;
+    --color-4: #2887c8;
+    --color-5: #e60026;
+}
+body {
+    padding-top: 5rem;
+    max-height: 100vh;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+}
+#card {
+    border: solid #cacaca 1px;
+    border-radius: 3rem;
+    height: 540px;
+    width: 800px;
+    box-shadow: 15px 10px 30px 10px #cacaca;
+    overflow: hidden;
+}
+.palette_row {
+    height: 70%;
+    background-color: #cecece;
+    display: flex;
+    flex-direction: row;
+}
+.controls {
+    height: 30%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 4rem;
+}
+
+button {
+    color: #000;
+    font-size: 3rem;
+    height: 6rem;
+    width: 6rem;
+    border-radius: 50%;
+    border-color: #000;
+    border-width: 4px;
+    background-color: #fff;
+}
+button:hover {
+    transform: scale(1.1);
+}
+.color {
+    height: fit-parent;
+    flex: 1;
+
+    font-size: 3rem;
+    color: #505050;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-bottom: 3rem;
+}
+#one {
+    background-color: var(--color-1);
+}
+#two {
+    background-color: var(--color-2);
+}
+#three {
+    background-color: var(--color-3);
+}
+#four {
+    background-color: var(--color-4);
+}
+#five {
+    background-color: var(--color-5);
+}
+
+i {
+    margin-top: auto;
+}
+i:hover {
+    transform: scale(1.1);
+}
+
+.palettes {
+    margin-top:5rem;
+    width: 800px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.mini-card {
+    padding: 0.5rem 1rem;
+    width: 200px;
+    height: 80px;
+    border-radius: 1rem;
+    box-shadow: 0px 15px 20px 5px #cecece;
+    display: flex;
+    flex-direction: column;
+}
+.row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.sub-color {
+    height: 40px;
+    width: 40px;
+}
