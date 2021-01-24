@@ -1,11 +1,19 @@
 class PalettesController < ApplicationController
     def index
-        palettes = Palette.all
+        palettes = params[:count] ? Palette.all.sample(params[:count].to_i) : Palette.all
         render :json => palettes, 
             :include => {
                 :colors => {:only => [:id, :name, :hex]}
             }, 
             :except => [:created_at, :updated_at]
+    end
+    
+    def show
+        palette = Palette.find(params[:id])
+        render json: palette, :include => {
+            :colors => {:only => [:id, :name, :hex]}
+        },
+        :except => [:created_at, :updated_at]
     end
 
     def create
