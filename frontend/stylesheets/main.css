@@ -109,3 +109,13 @@ i:hover {
     height: 40px;
     width: 40px;
 }
+#input-section {
+    width: 80%;
+    align-items: center;
+}
+#input-section h2 {
+    display: inline-block;
+}
+#input-section i {
+    display: inline;
+}
