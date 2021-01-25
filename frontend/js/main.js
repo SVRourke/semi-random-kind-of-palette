@@ -1,35 +1,44 @@
-function newElem(tag, names) {
-    let e = document.createElement(tag);
-    if (names) { for(const name of names) {e.classList.add(name)}}
-    return e
+const helper = {
+    newElem: function(tag, names) {
+        let e = document.createElement(tag);
+        if (names) { for(const name of names) {e.classList.add(name)}}
+        return e
+    },
+
+    getColor: function(cb) {
+        fetch("http://localhost:3000/api/colors?count=1")
+        .then(r => r.json())
+        .then(d => cb(d[0]))
+        .catch(e => alert("Network Error Try Again"));
+    }
+
 }
+
 
 // Callback for event listener on main palette color lock
 // toggles the locked/unlocked icon and color column's data-color-unlocked attribute
 function toggleIcon(icon) {
     if (icon.classList.contains("fa-unlock")) {
-        icon.classList.remove("fa-unlock")
-        icon.classList.add("fa-lock")
+        icon.classList.replace("fa-unlock", "fa-lock")
         icon.parentElement.setAttribute("data-color-unlocked", false);
     } else {
-        icon.classList.add("fa-unlock")
-        icon.classList.remove("fa-lock")
+        icon.classList.replace("fa-unlock", "fa-lock")
         icon.parentElement.setAttribute("data-color-unlocked", true);
     }
 }
 
 function miniPalette(info) {
-    let card = newElem("div", ["mini-card"]);
-    let row = newElem("div", ["row"]);
+    let card = helper.newElem("div", ["mini-card"]);
+    let row = helper.newElem("div", ["row"]);
 
     for (const color of info.colors) {
-        let block = newElem('div', ['sub-color']);
+        let block = helper.newElem('div', ['sub-color']);
         block.style.backgroundColor = color.hex;
         block.setAttribute("data-color_id", color.id)
         row.appendChild(block);
     }
 
-    let name = newElem("p");
+    let name = helper.newElem("p");
     name.innerText = info.name;
     card.appendChild(row);
     card.appendChild(name);
@@ -37,27 +46,26 @@ function miniPalette(info) {
     return card
 }
 
-
+// ADDED TO COLOR CLASS
 // Creates and returns a column element for the main palette
 function createColumn(color) {
-    let div = newElem("div", ["color"]);
+    let div = helper.newElem("div", ["color"]);
     div.setAttribute("data-color_id", color.id);
     div.setAttribute("data-color-unlocked", true);
     div.style.backgroundColor = color.hex;
     
-    let icon = newElem("i", ["fa", "fa-unlock"])
+    let icon = helper.newElem("i", ["fa", "fa-unlock"])
     icon.addEventListener("click", (e) => {toggleIcon(e.target)})
     div.appendChild(icon);
     return div
 }
 
-function getColor(cb) {
-    fetch("http://localhost:3000/api/colors?count=1")
-    .then(r => r.json())
-    .then(d => cb(d[0]))
-    .catch(e => alert("Network Error Try Again"))
-}
 
+// ADDED TO COLOR
+function updateColor(element, color) {
+    element.setAttribute("data-color_id", color.id);
+    element.style.backgroundColor = color.hex;
+}
 
 let mainColorsContainer = document.querySelector(".palette_row");
 
@@ -71,7 +79,7 @@ document.addEventListener("DOMContentLoaded", () => {
     .catch(e => console.log(e));
 
     for (let i = 0; i < 5; i++) {
-        getColor(c => mainColorsContainer.appendChild(createColumn(c)))
+        helper.getColor(c => mainColorsContainer.appendChild(createColumn(c)))
     }
 
 
@@ -80,8 +88,7 @@ document.addEventListener("DOMContentLoaded", () => {
             console.log("pressed")
             for (const col of mainColorsContainer.children) {
                 if (col.dataset.colorUnlocked == "true") {
-                    getColor((c) => {
-                        console.log(c)
+                    helper.getColor((c) => {
                         updateColor(col, c)
                     })
                 }
@@ -90,37 +97,62 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
+// classes
+// Palette
+// messenger
 
-function updateColor(element, color) {
-    element.setAttribute("data-color_id", color.id);
-    element.style.backgroundColor = color.hex;
+// Palette
+// renderPalette
+// reorder colors
+// savePalette
+
+class Palette {
+    constructor() {
+        this.name = `new palette`;
+        this.colors = [];
+    }
+
+    renderColors(container) {
+        container.innerHTML = "";
+        for (const color of this.colors) {container.appendChild(color.element)}
+    }
+
+    getRandomColors(n) {
+        for (let i = 0; i < n; i++) {
+            helper.getColor((c) => {
+                this.colors.push(new Color(c))
+            })
+        }
+    }
 }
 
+class Color {
+    constructor(color) {
+        for (const key in color) { this[key] = color[key]}
+
+        this.unlocked = true
+        this.element = createColumn(color) 
+    }
 
 
+    createColumn(color) {
+        let div = helper.newElem("div", ["color"]);
+        div.setAttribute("data-color_id", color.id);
+        div.setAttribute("data-color-unlocked", true);
+        div.style.backgroundColor = color.hex;
+        
+        let icon = helper.newElem("i", ["fa", "fa-unlock"])
+        icon.addEventListener("click", (e) => {toggleIcon(e.target)})
+        div.appendChild(icon);
+        return div
+    }
 
-
-//--------------------------------------------------------
-// for (const column of columns) {
-//     fetch("http://localhost:3000/api/colors?count=1")
-//       .then(r => r.json())
-//     .then((d) => {
-//       let hex = d[0].hex
-//       console.log(hex);
-//       column.style.background = d[0].hex;
-//     })
-//     .catch(e => console.log('ERROR', e))
-//    }
-//--------------------------------------------------------
-// fetch("http://localhost:3000/api/palettes?single=true")
-// .then(r => r.json())
-// .then(d => console.log(d))
-// .catch(e => console.log(e));
-//--------------------------------------------------------
-// fetch("http://localhost:3000/api/palettes?single=true")
-// .then(r => r.json())
-// .then((d) => {
-//   console.log(d)
-//   container.appendChild(miniPalette(d[0]));
-// })
-// .catch(e => console.log(e));
+    updateColor(color) {
+        for (const key in color) { this[key] = color[key]}
+        // this.name = color.name
+        // this.id = color.id
+        this.hex = color.hex
+        this.element.setAttribute("data-color_id", color.id);
+        this.element.style.backgroundColor = color.hex;
+    }
+}
