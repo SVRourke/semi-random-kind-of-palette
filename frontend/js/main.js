@@ -21,6 +21,7 @@ function toggleIcon(icon) {
     if (icon.classList.contains("fa-unlock")) {
         icon.classList.replace("fa-unlock", "fa-lock")
         icon.parentElement.setAttribute("data-color-unlocked", false);
+        icon.setAttribute("alt", "locked")
     } else {
         icon.classList.replace("fa-unlock", "fa-lock")
         icon.parentElement.setAttribute("data-color-unlocked", true);
