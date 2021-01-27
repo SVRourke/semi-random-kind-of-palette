@@ -18,7 +18,7 @@ class PalettesController < ApplicationController
 
     def create
         palette = Palette.new_from_hash(palette_params)
-        render json: {message: "#{p.name} Saved!"}
+        render json: {message: "#{palette.name} Saved!"}
     end
 
     private
