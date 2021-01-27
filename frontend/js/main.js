@@ -5,7 +5,6 @@ const helper = {
         if (names) { for(const name of names) {e.classList.add(name)}}
         return e
     },
-    
     // function to get n colors from api
     getColor: async function(n) {
         let url = `http://localhost:3000/api/colors?count=${n}`;
@@ -14,7 +13,7 @@ const helper = {
             return await res.json();
         } catch (error) { console.log(error)}
     },
-
+    // function to post the palette data to the api
     postData: async function(params) {
         let url = "http://localhost:3000/api/palettes"
         fetch(url, {
@@ -23,27 +22,14 @@ const helper = {
             headers: {
                 "Content-Type": "application/json"
             },
-
             body: JSON.stringify(params)
         })
-        .then(response => console.log(response))
-        .catch(error => console.log(error))
-
+        .then(response => console.log(response.json()))
+        .catch(error => alert("Network Error, try again.."))
+        location.reload()
     }
 }
 
-
-// Callback for event listener on main palette color lock
-// toggles the locked/unlocked icon and color column's data-color-unlocked attribute
-function toggleIcon(icon) {
-    if (icon.classList.contains("fa-unlock")) {
-        icon.classList.replace("fa-unlock", "fa-lock")
-        icon.parentElement.setAttribute("data-color-unlocked", false);
-    } else {
-        icon.classList.replace("fa-lock", "fa-unlock")
-        icon.parentElement.setAttribute("data-color-unlocked", true);
-    }
-}
 
 function miniPalette(info) {
     let card = helper.newElem("div", ["mini-card"]);
@@ -64,33 +50,9 @@ function miniPalette(info) {
     return card
 }
 
-// ADDED TO COLOR CLASS
-// Creates and returns a column element for the main palette
-function createColumn(color) {
-    let div = helper.newElem("div", ["color"]);
-    div.setAttribute("data-color_id", color.id);
-    div.setAttribute("data-color-unlocked", true);
-    div.style.backgroundColor = color.hex;
-    
-    let icon = helper.newElem("i", ["fa", "fa-unlock"])
-    icon.addEventListener("click", (e) => {toggleIcon(e.target)})
-    div.appendChild(icon);
-    return div
-}
-
-
-// ADDED TO COLOR
-function updateColor(element, color) {
-    element.setAttribute("data-color_id", color.id);
-    element.style.backgroundColor = color.hex;
-}
-
-let mainColorsContainer = document.querySelector(".palette_row");
-    
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// let p = new Palette;
-// p.initializeColors(3)
-// p.renderColors()
+// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 class Palette {
     constructor() {
         this.paletteContainer = document.querySelector(".palette_row");
@@ -103,13 +65,17 @@ class Palette {
     async initColors() {
         await helper.getColor(4)
         .then((c) => {
-            c.forEach((color) => {this.colors.push(new Color(color))})
+            c.forEach((color) => {
+                this.colors.push(new Color(color))
+            })
         })
     }
 
     renderColors() {
         this.paletteContainer.innerHTML = "";
-        for (const color of this.colors) {this.paletteContainer.appendChild(color.element)}
+        for (const color of this.colors) {
+            this.paletteContainer.appendChild(color.element)
+        }
     }
 
     savePalette() {
@@ -117,18 +83,23 @@ class Palette {
         if (this.nameInput.textContent == "New Palette") {
             alert("Please enter a new name")
         } else { 
-            // console.log(color_ids)
-            helper.postData({palette: {name: this.nameInput.textContent, color_ids: color_ids}})
-            // console.log(JSON.stringify())
+            helper.postData({
+                palette: {
+                    name: this.nameInput.textContent, 
+                    color_ids: color_ids
+                }
+            })
         }
     }
 }
-
+// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 class Color {
     constructor(color) {
         for (const key in color) { this[key] = color[key]}
         this.setAttributes(color)
-        this.element = createColumn(color)
+        this.element = this.createColumn(color)
         
     }
 
@@ -139,7 +110,7 @@ class Color {
         div.style.backgroundColor = color.hex;
         
         let icon = helper.newElem("i", ["fa", "fa-unlock"])
-        icon.addEventListener("click", (e) => {toggleIcon(e.target)})
+        icon.addEventListener("click", (e) => {this.toggleIcon(e.target)})
         div.appendChild(icon);
         return div
     }
@@ -153,6 +124,18 @@ class Color {
     setAttributes(color) {
         for (const key in color) { this[key] = color[key]}
         this.unlocked = true
+    }
+
+    // Callback for event listener on main palette color lock
+    // toggles the locked/unlocked icon and color column's data-color-unlocked attribute
+    toggleIcon(icon) {
+        if (icon.classList.contains("fa-unlock")) {
+            icon.classList.replace("fa-unlock", "fa-lock")
+            icon.parentElement.setAttribute("data-color-unlocked", false);
+        } else {
+            icon.classList.replace("fa-lock", "fa-unlock")
+            icon.parentElement.setAttribute("data-color-unlocked", true);
+        }
     }
 
     
