@@ -19,6 +19,11 @@ const helper = {
         let url = "http://localhost:3000/api/palettes"
         fetch(url, {
             method: "post",
+            mode: "cors",
+            headers: {
+                "Content-Type": "application/json"
+            },
+
             body: JSON.stringify(params)
         })
         .then(response => console.log(response))
@@ -112,8 +117,9 @@ class Palette {
         if (this.nameInput.textContent == "New Palette") {
             alert("Please enter a new name")
         } else { 
-            helper.postData({name: name, color_ids: color_ids})
-            console.log(name, color_ids)
+            // console.log(color_ids)
+            helper.postData({palette: {name: this.nameInput.textContent, color_ids: color_ids}})
+            // console.log(JSON.stringify())
         }
     }
 }
