@@ -129,11 +129,9 @@ class Palette {
 class Color {
     constructor(color) {
         for (const key in color) { this[key] = color[key]}
-
-        this.unlocked = true
+        setAttributes(color)
         this.element = createColumn(color) 
     }
-
 
     createColumn(color) {
         let div = helper.newElem("div", ["color"]);
@@ -148,11 +146,13 @@ class Color {
     }
 
     updateColor(color) {
-        for (const key in color) { this[key] = color[key]}
-        // this.name = color.name
-        // this.id = color.id
-        this.hex = color.hex
+        setAttributes(color)
         this.element.setAttribute("data-color_id", color.id);
         this.element.style.backgroundColor = color.hex;
+    }
+
+    setAttributes(color) {
+        for (const key in color) { this[key] = color[key]}
+        this.unlocked = true
     }
 }
