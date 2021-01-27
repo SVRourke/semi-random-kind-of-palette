@@ -13,6 +13,17 @@ const helper = {
             let res = await fetch(url);
             return await res.json();
         } catch (error) { console.log(error)}
+    },
+
+    postData: async function(params) {
+        let url = "http://localhost:3000/api/palettes"
+        fetch(url, {
+            method: "post",
+            body: JSON.stringify(params)
+        })
+        .then(response => console.log(response))
+        .catch(error => console.log(error))
+
     }
 }
 
@@ -79,6 +90,7 @@ class Palette {
     constructor() {
         this.paletteContainer = document.querySelector(".palette_row");
         this.nameInput = document.querySelector("#palette-title")
+        this.saveButton = document.querySelector("#save")
         this.colors = [];
 
     }
@@ -96,12 +108,13 @@ class Palette {
     }
 
     savePalette() {
-        let color_ids = this.colors.map(c => c.id)
-        ;
+        let color_ids = this.colors.map(c => c.id);
         if (this.nameInput.textContent == "New Palette") {
             alert("Please enter a new name")
-        } else { console.log("SAVING....")}
-        console.log(name, color_ids)
+        } else { 
+            helper.postData({name: name, color_ids: color_ids})
+            console.log(name, color_ids)
+        }
     }
 }
 
@@ -139,12 +152,16 @@ class Color {
     
 }
 
-let p = new Palette;
 
 document.addEventListener("DOMContentLoaded", () => {
-    p.initColors()
-    .then(e => p.renderColors())
+    let p = new Palette;
+    p.initColors().then(e => p.renderColors())
 
+    p.saveButton.addEventListener("click", () => {
+        p.savePalette()
+    })
+
+    
     document.body.onkeyup = function(e){
         if(e.keyCode == 32 && p.nameInput !== document.activeElement){
             p.colors.forEach((c) => {
@@ -152,46 +169,6 @@ document.addEventListener("DOMContentLoaded", () => {
                     helper.getColor(1).then(r => c.updateColor(r[0]))
                 }
             })
-            console.log()
-            // for (const col of mainColorsContainer.children) {
-            //     if (col.dataset.colorUnlocked == "true") {
-            //         helper.getColor((c) => {
-            //             updateColor(col, c)
-            //         })
-            //     }
-            }
         }
+    }
 })
-
-
-
-
-
-
-// document.addEventListener("DOMContentLoaded", () => {
-//     container = document.querySelector("section.palettes")
-//     fetch("http://localhost:3000/api/palettes?count=3")
-//     .then(r => r.json())
-//     .then((d) => {
-//         for (const o of d) {container.appendChild(miniPalette(o))}
-//     })
-//     .catch(e => console.log(e));
-
-//     for (let i = 0; i < 5; i++) {
-//         helper.getColor(c => mainColorsContainer.appendChild(createColumn(c)))
-//     }
-
-
-//     document.body.onkeyup = function(e){
-//         if(e.keyCode == 32){
-//             console.log("pressed")
-//             for (const col of mainColorsContainer.children) {
-//                 if (col.dataset.colorUnlocked == "true") {
-//                     helper.getColor((c) => {
-//                         updateColor(col, c)
-//                     })
-//                 }
-//             }
-//         }
-//     }
-// });
