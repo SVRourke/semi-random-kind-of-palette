@@ -1,16 +1,12 @@
 const helper = {
+    // helper function to create an element with classnames
     newElem: function(tag, names) {
         let e = document.createElement(tag);
         if (names) { for(const name of names) {e.classList.add(name)}}
         return e
     },
-
-    // getColor: async function(n) {
-    //     fetch(`http://localhost:3000/api/colors?count=${n}`)
-    //     .then(r => r.json())
-    //     .then(d => {return d})
-    //     .catch(e => alert("Network Error Try Again"));
-    // }
+    
+    // function to get n colors from api
     getColor: async function(n) {
         let url = `http://localhost:3000/api/colors?count=${n}`;
         try {
@@ -18,18 +14,6 @@ const helper = {
             return await res.json();
         } catch (error) { console.log(error)}
     }
-
-    // test: async function(n, p) {
-    //     let a = [];
-    //     await this.getColor( n, (d) => {
-    //         console.log("test-", a)
-    //         for (const c of d) {
-    //             p.colors.push(new Color(c))
-
-    //         }
-    //     })
-    //     return a
-    // }
 }
 
 
@@ -94,7 +78,7 @@ let mainColorsContainer = document.querySelector(".palette_row");
 class Palette {
     constructor() {
         this.paletteContainer = document.querySelector(".palette_row");
-        this.name = `new palette`;
+        this.nameInput = document.querySelector("#palette-title")
         this.colors = [];
 
     }
@@ -106,10 +90,18 @@ class Palette {
         })
     }
 
-
     renderColors() {
         this.paletteContainer.innerHTML = "";
         for (const color of this.colors) {this.paletteContainer.appendChild(color.element)}
+    }
+
+    savePalette() {
+        let color_ids = this.colors.map(c => c.id)
+        ;
+        if (this.nameInput.textContent == "New Palette") {
+            alert("Please enter a new name")
+        } else { console.log("SAVING....")}
+        console.log(name, color_ids)
     }
 }
 
@@ -154,12 +146,10 @@ document.addEventListener("DOMContentLoaded", () => {
     .then(e => p.renderColors())
 
     document.body.onkeyup = function(e){
-        if(e.keyCode == 32){
-            console.log("pressed")
+        if(e.keyCode == 32 && p.nameInput !== document.activeElement){
             p.colors.forEach((c) => {
                 if (c.element.dataset.colorUnlocked == "true") {
-                    helper.getColor(1)
-                    .then(r => c.updateColor(r[0]))
+                    helper.getColor(1).then(r => c.updateColor(r[0]))
                 }
             })
             console.log()
