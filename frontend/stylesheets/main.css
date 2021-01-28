@@ -130,7 +130,7 @@ a:hover {
 }
 
 #palettes-grid {
-    width: 80%;
+    max-width: 800px;
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
@@ -147,3 +147,57 @@ a:hover {
     flex-direction: column;
     margin-bottom: 2rem;
 }
+.alt-mini-card:hover {
+    transform: scale(1.05);
+}
+
+#modal {
+    position: fixed;
+    width: 100%;
+    height: 100vh;
+    background-color: rgba(0,0,0,0.8);
+    top: 0;
+    left: 0;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+}
+
+#modal-content {
+    padding: 2rem;
+    border-radius: 1rem;
+    background: white;
+    width: 500px;
+    height: 500px;
+}
+
+
+
+/*
+<div id="modal-content">
+    <h1 id="palette-title">Title</h1>
+    <h3>CSS Variables:</h3>
+    <p id="variable-display">
+        --var-red: #FE2712;
+        --var-mauve-taupe: #915F6D;
+        --var-egyptian-blue: #1034A6;
+        --var-safety-orange: #FF6700;
+    </p>
+    <h3>HEX Values:</h3>
+    <p id="hex-display">
+        Hex Values:
+        Red (RYB): #FE2712
+        Mauve taupe: #915F6D
+        Egyptian blue: #1034A6
+        Safety orange: #FF6700
+    </p>
+    <h3>RGB Values:</h3>
+    <p id="rgb-display">
+        RGB Values:
+        Red (RYB): #FE2712
+        Mauve taupe: #915F6D
+        Egyptian blue: #1034A6
+        Safety orange: #FF6700
+    </p>    
+</div>
+*/
