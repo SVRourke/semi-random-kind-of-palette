@@ -15,18 +15,25 @@ const helper = {
     },
     // function to post the palette data to the api
     postData: async function(params) {
-        let url = "http://localhost:3000/api/palettes"
-        fetch(url, {
+        let url = "http://localhost:3000/api/palettes";
+        let response = await fetch(url, {
             method: "post",
             mode: "cors",
             headers: {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify(params)
-        })
-        .then(response => console.log(response.json()))
-        .catch(error => alert("Network Error, try again.."))
-        location.reload()
+        });
+        return response.json()
+    },
+
+    getPalettes: async function(n, cb) {
+        let url = "http://localhost:3000/api/palettes";
+        if (n) { url += `?count=${n}`}
+
+        fetch(url)
+        .then(res => res.json())
+        .then(d => cb(d))
     }
 }
 
@@ -78,17 +85,15 @@ class Palette {
         }
     }
 
-    savePalette() {
+    async savePalette(container) {
         let color_ids = this.colors.map(c => c.id);
         if (this.nameInput.textContent == "New Palette") {
             alert("Please enter a new name")
         } else { 
-            helper.postData({
-                palette: {
-                    name: this.nameInput.textContent, 
-                    color_ids: color_ids
-                }
-            })
+            await helper.postData({
+                palette: { name: this.nameInput.textContent, color_ids: color_ids}
+            });
+            renderPalettes(container)
         }
     }
 }
@@ -140,16 +145,26 @@ class Color {
 
     
 }
+function renderPalettes(container) {
+    container.innerHTML  = "";
+    helper.getPalettes(3, (e) => {
+        for (const palette of e) {
+            container.appendChild(miniPalette(palette));
+        }
+    })
 
 
+}
+// CHANGE RELOAD TO RE-RENDER
+// ADD LINK TO VIEW ALL PALETTES
 document.addEventListener("DOMContentLoaded", () => {
     let p = new Palette;
+    let miniPaletteContainer = document.querySelector(".palettes");
     p.initColors().then(e => p.renderColors())
 
     p.saveButton.addEventListener("click", () => {
-        p.savePalette()
+        p.savePalette(miniPaletteContainer)
     })
-
     
     document.body.onkeyup = function(e){
         if(e.keyCode == 32 && p.nameInput !== document.activeElement){
@@ -160,4 +175,25 @@ document.addEventListener("DOMContentLoaded", () => {
             })
         }
     }
+    renderPalettes(miniPaletteContainer)
+    // helper.getPalettes(3, (e) => {
+    //     for (const palette of e) {
+    //         miniPaletteContainer.appendChild(miniPalette(palette));
+    //     }
+    // })
+
+    // EXAMPLE OF GENERATED CARD 
+    // <div class="mini-card">
+    // <div class="row">
+    //     <div class="sub-color"></div>
+    //     <div class="sub-color"></div>
+    //     <div class="sub-color"></div>
+    //     <div class="sub-color"></div>
+    // </div>
+
+    // <p>palette-skldm2lwm</p>
+    // </div>
+
+
+
 })
