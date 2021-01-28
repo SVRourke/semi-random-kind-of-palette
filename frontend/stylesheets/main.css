@@ -152,6 +152,7 @@ a:hover {
 }
 
 #modal {
+    display: none;
     position: fixed;
     width: 100%;
     height: 100vh;
@@ -159,45 +160,17 @@ a:hover {
     top: 0;
     left: 0;
     z-index: 1;
-    display: grid;
-    place-items: center;
 }
 
 #modal-content {
+    white-space: pre-line;
     padding: 2rem;
     border-radius: 1rem;
     background: white;
+    margin: 10rem auto;
     width: 500px;
     height: 500px;
+    display: flex;
+    flex-direction: column;
+
 }
-
-
-
-/*
-<div id="modal-content">
-    <h1 id="palette-title">Title</h1>
-    <h3>CSS Variables:</h3>
-    <p id="variable-display">
-        --var-red: #FE2712;
-        --var-mauve-taupe: #915F6D;
-        --var-egyptian-blue: #1034A6;
-        --var-safety-orange: #FF6700;
-    </p>
-    <h3>HEX Values:</h3>
-    <p id="hex-display">
-        Hex Values:
-        Red (RYB): #FE2712
-        Mauve taupe: #915F6D
-        Egyptian blue: #1034A6
-        Safety orange: #FF6700
-    </p>
-    <h3>RGB Values:</h3>
-    <p id="rgb-display">
-        RGB Values:
-        Red (RYB): #FE2712
-        Mauve taupe: #915F6D
-        Egyptian blue: #1034A6
-        Safety orange: #FF6700
-    </p>    
-</div>
-*/
