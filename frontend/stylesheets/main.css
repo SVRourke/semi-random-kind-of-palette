@@ -152,3 +152,17 @@ a:hover {
     flex-direction: column;
 
 }
+
+
+#new_palette {
+    position: fixed;
+    top: 50px;
+    right: 40px;
+    z-index: 1;
+    font-size: 1rem;
+    font-weight: 900;
+}
+
+#new_palette_link:hover {
+    transform: scale(1.05)
+}
