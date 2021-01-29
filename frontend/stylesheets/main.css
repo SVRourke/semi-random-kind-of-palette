@@ -1,10 +1,3 @@
-:root {
-    --color-1: #eee600;
-    --color-2: #8e3a59;
-    --color-3: #766ec8;
-    --color-4: #2887c8;
-    --color-5: #e60026;
-}
 body {
     padding-top: 5rem;
     max-height: 100vh;
@@ -61,21 +54,6 @@ button:hover {
     align-items: center;
     padding-bottom: 3rem;
 }
-#one {
-    background-color: var(--color-1);
-}
-#two {
-    background-color: var(--color-2);
-}
-#three {
-    background-color: var(--color-3);
-}
-#four {
-    background-color: var(--color-4);
-}
-#five {
-    background-color: var(--color-5);
-}
 
 i {
     margin-top: auto;
@@ -83,7 +61,6 @@ i {
 i:hover {
     transform: scale(1.1);
 }
-
 .palettes {
     margin-top:5rem;
     width: 800px;
@@ -108,6 +85,7 @@ i:hover {
 .sub-color {
     height: 40px;
     width: 40px;
+    flex: 1;
 }
 #input-section {
     width: 80%;
