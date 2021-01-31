@@ -1,8 +1,16 @@
-function getPalettes (cb) {
+async function getPalettes (cb) {
   const url = 'http://localhost:3000/api/palettes'
-  fetch(url)
-    .then(res => res.json())
-    .then(d => cb(d))
+  let res = await fetch(url)
+  return res.json()
+}
+
+async function renderPalettes (container) {
+  let palettes = await getPalettes()
+  palettes.forEach(palette => {
+      const p = miniPalette(palette)
+      p.addEventListener('click', (e) => { renderModal(scrapeInfo(p)) })
+      container.appendChild(p)    
+  })
 }
 
 function newElem(tag, names) {
@@ -12,9 +20,8 @@ function newElem(tag, names) {
 }
 
 function miniPalette(info) {
-  const card = newElem('div', ['alt-mini-card'])
   const row = newElem('div', ['row'])
-
+  
   for (const color of info.colors) {
     const block = newElem('div', ['sub-color'])
     block.style.backgroundColor = color.hex
@@ -22,9 +29,11 @@ function miniPalette(info) {
     block.setAttribute('data-color_name', color.name)
     row.appendChild(block)
   }
-
+  
   const name = newElem('p')
   name.innerText = info.name
+  
+  const card = newElem('div', ['alt-mini-card'])
   card.appendChild(row)
   card.appendChild(name)
 
@@ -66,17 +75,9 @@ function renderModal(info) {
 document.addEventListener('DOMContentLoaded', () => {
   const container = document.querySelector('#palettes-grid')
   const modal = document.getElementById('modal')
-  getPalettes((e) => {
-    e.forEach(c => {
-      const p = miniPalette(c)
-      p.addEventListener('click', (e) => {
-        const paletteInfo = scrapeInfo(p)
-        renderModal(paletteInfo)
-      })
-      container.appendChild(p)
-    })
-  })
-
+  
+  renderPalettes(container)
+  
   window.onclick = function (event) {
     if (event.target === modal) {
       modal.style.display = 'none'
