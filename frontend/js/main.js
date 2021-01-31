@@ -1,111 +1,113 @@
-const helper = {
+// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+// ++++++++++++++++++++++    API Helper   +++++++++++++++++++++++++++++
+// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+const api = {
+  // Base function to send GET requests to the api
   request: async function (endpoint, count) {
     const url = 'http://localhost:3000/api/'
     let suffix = count ? `?count=${count}` : "";
     let response = await fetch((url + endpoint + suffix))
     return response.json()
   },
-
+  // Get n colors from the api
   getColor: async function(n) {
     return await this.request("colors", n)
   },
-
-  getPalettes: async function(n, cb) {
+  // Get n palettes from api
+  getPalettes: async function(n) {
     return await this.request("palettes", n)        
   },
- 
   // function to post the palette data to the api
   postData: async function (params) {
     const url = 'http://localhost:3000/api/palettes'
     const response = await fetch(url, {
       method: 'post',
       mode: 'cors',
-      headers: {
-        'Content-Type': 'application/json'
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(params)
     })
     return response.json()
-  },
-
+  }
 }
-
+// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+// ++++++++++++++++++++++  Render Helper  +++++++++++++++++++++++++++++
+// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 const render = {
+  // Creates the mini palette element for the bottom of page display
   miniPalette: function (info) {
-    const card = render.newElem('div', ['mini-card'])
     const row = render.newElem('div', ['row'])
-  
-    for (const color of info.colors) {
+    
+    info.colors.forEach((color) => {
       const block = render.newElem('div', ['sub-color'])
       block.style.backgroundColor = color.hex
       block.setAttribute('data-color_id', color.id)
       row.appendChild(block)
-    }
-  
+    })
+    
     const name = render.newElem('p')
     name.innerText = info.name
+
+    const card = render.newElem('div', ['mini-card'])
     card.appendChild(row)
     card.appendChild(name)
   
     return card
   },
 
+  palettes: async function (container) {
+    container.innerHTML = ''
+    let palettes = await api.getPalettes(3)
+    palettes.forEach((p) => { container.appendChild(render.miniPalette(p)) })
+  },
+
   // helper function to create an element with classnames
   newElem: function (tag, names) {
     const e = document.createElement(tag)
-    if (names) { for (const name of names) { e.classList.add(name) } }
+    if (names) { names.forEach( (name) => { e.classList.add(name) }) }
     return e
-  },
-
-  createIcon: async function (color, cb) {
-    const elem = render.newElem('i', ['fa', 'fa-plus'])
-    elem.addEventListener('click', () => cb(elem) )
-    color.element.insertBefore(elem, color.element.firstChild)
   }
-
 }
-
-
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // ++++++++++++++++++++++  PALETTE CLASS  +++++++++++++++++++++++++++++
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 class Palette {
   constructor () {
-    this.paletteContainer = document.querySelector('.palette_row')
+    this.container = document.querySelector('.palette_row')
     this.nameInput = document.querySelector('#palette-title')
     this.saveButton = document.querySelector('#save')
     this.colors = []
   }
 
   async initColors () {
-    let colors = await helper.getColor(4)
+    let colors = await api.getColor(4)
     colors.forEach((color) => { this.colors.push(new Color(color)) })
   }
 
   async renderColors () {
-    this.paletteContainer.innerHTML = ''
+    this.container.innerHTML = ''
     this.colors.forEach((color) => {
       if (this.colors.indexOf(color) === (this.colors.length - 1)) { this.makeLastColor(color) }
-      this.paletteContainer.appendChild(color.element)
+      this.container.appendChild(color.element)
     })
   }
+  get lastColor () {
+    const last = this.colors.length - 1
+    return this.colors[last].element
+  }
   
-  makeLastColor (color) {
-    render.createIcon(color, () => {
-      this.removePlus()
+  async makeLastColor (color) {
+    const elem = render.newElem('i', ['fa', 'fa-plus'])
+    elem.addEventListener('click', () => {
+      this.lastColor.removeChild(this.lastColor.firstChild)
       this.addColor()
-    })
+    } )
+    color.element.insertBefore(elem, color.element.firstChild)
   }
 
   async addColor () {
-    const color = await helper.getColor(1)
+    const color = await api.getColor(1)
     this.colors.push(new Color(color))
     this.renderColors()
-  }
-
-  removePlus () {
-    const last = this.colors.length - 1
-    this.colors[last].element.removeChild(this.colors[last].element.firstChild)
   }
 
   async savePalette (container) {
@@ -113,19 +115,27 @@ class Palette {
     if (this.nameInput.textContent === 'New Palette') {
       alert('Please enter a new name')
     } else {
-      await helper.postData({
+      await api.postData({
         palette: { name: this.nameInput.textContent, color_ids: colorIds}
       })
-      renderPalettes(container)
+      render.palettes(container)
     }
+  }
+  
+  shuffle () {
+    this.colors.forEach((color) => {
+      if (color.element.dataset.colorUnlocked === 'true') { 
+        api.getColor(1).then(r => color.updateColor(r[0]))
+      }
+    })
+
   }
 }
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+// ++++++++++++++++++++++++  Color Class  +++++++++++++++++++++++++++++
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 class Color {
   constructor (color) {
-    for (const key in color) { this[key] = color[key]}
     this.setAttributes(color)
     this.element = this.createColumn(color)
   }
@@ -165,34 +175,23 @@ class Color {
   }
 }
 
-async function renderPalettes (container) {
-  container.innerHTML = ''
-  let palettes = await helper.getPalettes(3)
-  palettes.forEach((p) => { container.appendChild(render.miniPalette(p)) })
-}
-
-
 // ============================================================================
 // ============================  MAIN RUN  ====================================
 // ============================================================================
 
 document.addEventListener('DOMContentLoaded', () => {
-  const p = new Palette()
+  const palette = new Palette()
   const miniPaletteContainer = document.querySelector('.palettes')
-  p.initColors().then(e => p.renderColors())
 
-  p.saveButton.addEventListener('click', () => {
-    p.savePalette(miniPaletteContainer)
-  })
+  palette.initColors().then(e => palette.renderColors())
+
+  palette.saveButton.addEventListener('click', () => { palette.savePalette(miniPaletteContainer) })
 
   document.body.onkeyup = function (e) {
-    if (e.keyCode === 32 && p.nameInput !== document.activeElement) {
-      p.colors.forEach((c) => {
-        if (c.element.dataset.colorUnlocked === 'true') {
-          helper.getColor(1).then(r => c.updateColor(r[0]))
-        }
-      })
+    if (e.keyCode === 32 && palette.nameInput !== document.activeElement) { 
+      palette.shuffle()
     }
   }
-  renderPalettes(miniPaletteContainer)
+
+  render.palettes(miniPaletteContainer)
 })
