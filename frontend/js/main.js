@@ -1,18 +1,19 @@
 const helper = {
-  // helper function to create an element with classnames
-  newElem: function (tag, names) {
-    const e = document.createElement(tag)
-    if (names) { for (const name of names) { e.classList.add(name) } }
-    return e
+  request: async function (endpoint, count) {
+    const url = 'http://localhost:3000/api/'
+    let suffix = count ? `?count=${count}` : "";
+    let response = await fetch((url + endpoint + suffix))
+    return response.json()
   },
-  // function to get n colors from api
-  getColor: async function (n) {
-    const url = `http://localhost:3000/api/colors?count=${n}`
-    try {
-      const res = await fetch(url)
-      return await res.json()
-    } catch (error) { console.log(error)}
+
+  getColor: async function(n) {
+    return await this.request("colors", n)
   },
+
+  getPalettes: async function(n, cb) {
+    return await this.request("palettes", n)        
+  },
+ 
   // function to post the palette data to the api
   postData: async function (params) {
     const url = 'http://localhost:3000/api/palettes'
@@ -27,41 +28,43 @@ const helper = {
     return response.json()
   },
 
-  getPalettes: async function(n, cb) {
-    let url = 'http://localhost:3000/api/palettes'
-    if (n) { url += `?count=${n}` }
+}
 
-    fetch(url)
-      .then(res => res.json())
-      .then(d => cb(d))
+const render = {
+  miniPalette: function (info) {
+    const card = render.newElem('div', ['mini-card'])
+    const row = render.newElem('div', ['row'])
+  
+    for (const color of info.colors) {
+      const block = render.newElem('div', ['sub-color'])
+      block.style.backgroundColor = color.hex
+      block.setAttribute('data-color_id', color.id)
+      row.appendChild(block)
+    }
+  
+    const name = render.newElem('p')
+    name.innerText = info.name
+    card.appendChild(row)
+    card.appendChild(name)
+  
+    return card
+  },
+
+  // helper function to create an element with classnames
+  newElem: function (tag, names) {
+    const e = document.createElement(tag)
+    if (names) { for (const name of names) { e.classList.add(name) } }
+    return e
   },
 
   createIcon: async function (color, cb) {
-    const elem = helper.newElem('i', ['fa', 'fa-plus'])
+    const elem = render.newElem('i', ['fa', 'fa-plus'])
     elem.addEventListener('click', () => cb(elem) )
     color.element.insertBefore(elem, color.element.firstChild)
   }
+
 }
 
-
-function miniPalette(info) {
-  const card = helper.newElem('div', ['mini-card'])
-  const row = helper.newElem('div', ['row'])
-
-  for (const color of info.colors) {
-    const block = helper.newElem('div', ['sub-color'])
-    block.style.backgroundColor = color.hex
-    block.setAttribute('data-color_id', color.id)
-    row.appendChild(block)
-  }
-
-  const name = helper.newElem('p')
-  name.innerText = info.name
-  card.appendChild(row)
-  card.appendChild(name)
-
-  return card
-}
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // ++++++++++++++++++++++  PALETTE CLASS  +++++++++++++++++++++++++++++
@@ -75,27 +78,20 @@ class Palette {
   }
 
   async initColors () {
-    await helper.getColor(4)
-      .then((c) => {
-        c.forEach((color) => {
-          this.colors.push(new Color(color))
-        })
-      })
+    let colors = await helper.getColor(4)
+    colors.forEach((color) => { this.colors.push(new Color(color)) })
   }
 
   async renderColors () {
     this.paletteContainer.innerHTML = ''
-    for (const color of this.colors) {
-      if (this.colors.indexOf(color) === (this.colors.length - 1)) {
-        this.makeLastColor(color)
-      }
-
+    this.colors.forEach((color) => {
+      if (this.colors.indexOf(color) === (this.colors.length - 1)) { this.makeLastColor(color) }
       this.paletteContainer.appendChild(color.element)
-    }
+    })
   }
-
+  
   makeLastColor (color) {
-    helper.createIcon(color, () => {
+    render.createIcon(color, () => {
       this.removePlus()
       this.addColor()
     })
@@ -109,8 +105,7 @@ class Palette {
 
   removePlus () {
     const last = this.colors.length - 1
-     
-    console.log(this.colors[last].element.removeChild(this.colors[last].element.firstChild))
+    this.colors[last].element.removeChild(this.colors[last].element.firstChild)
   }
 
   async savePalette (container) {
@@ -136,11 +131,11 @@ class Color {
   }
 
   createColumn (color) {
-    const div = helper.newElem('div', ['color'])
+    const div = render.newElem('div', ['color'])
     div.setAttribute('data-color_id', color.id)
     div.setAttribute('data-color-unlocked', true)
     div.style.backgroundColor = color.hex
-    const icon = helper.newElem('i', ['fa', 'fa-unlock'])
+    const icon = render.newElem('i', ['fa', 'fa-unlock'])
     icon.addEventListener('click', (e) => {this.toggleIcon(e.target)})
     div.appendChild(icon)
     return div
@@ -170,14 +165,16 @@ class Color {
   }
 }
 
-function renderPalettes (container) {
+async function renderPalettes (container) {
   container.innerHTML = ''
-  helper.getPalettes(3, (e) => {
-    for (const palette of e) {
-      container.appendChild(miniPalette(palette))
-    }
-  })
+  let palettes = await helper.getPalettes(3)
+  palettes.forEach((p) => { container.appendChild(render.miniPalette(p)) })
 }
+
+
+// ============================================================================
+// ============================  MAIN RUN  ====================================
+// ============================================================================
 
 document.addEventListener('DOMContentLoaded', () => {
   const p = new Palette()
