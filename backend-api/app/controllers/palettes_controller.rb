@@ -7,14 +7,6 @@ class PalettesController < ApplicationController
             }, 
             :except => [:created_at, :updated_at]
     end
-    
-    def show
-        palette = Palette.find(params[:id])
-        render json: palette, :include => {
-            :colors => {:only => [:id, :name, :hex]}
-        },
-        :except => [:created_at, :updated_at]
-    end
 
     def create
         palette = Palette.new_from_hash(palette_params)

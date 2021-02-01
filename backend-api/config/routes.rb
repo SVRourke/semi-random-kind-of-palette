@@ -5,7 +5,6 @@ Rails.application.routes.draw do
   get '/api/colors', to: 'colors#index'
   # Route for all palettes
   get '/api/palettes', to: 'palettes#index'
-  get 'api/:id/palette', to: 'palettes#show'
   # Route to create a new palette
   post '/api/palettes', to: 'palettes#create'
 end
